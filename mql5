@@ -1,0 +1,122 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                              Check Laverage and Spread |
+//|                       Copyright 2022, forexroboteasy.com |
+//|                                          Developed by Forex Robot Easy Team |
+//+------------------------------------------------------------------+
+#include <Trade\Trade.mqh>
+
+//+------------------------------------------------------------------+
+//| Global variables |
+//+------------------------------------------------------------------+
+double leverage;
+double spread;
+
+//+------------------------------------------------------------------+
+//| Custom function to monitor leverage |
+//+------------------------------------------------------------------+
+void MonitorLeverage()
+{
+   leverage = AccountInfoDouble(ACCOUNT_LEVERAGE);
+   Print('Current leverage: ', leverage);
+}
+
+//+------------------------------------------------------------------+
+//| Custom function to monitor spread |
+//+------------------------------------------------------------------+
+void MonitorSpread()
+{
+   spread = MarketInfo(Symbol(), MODE_SPREAD);
+   Print('Current spread for ', Symbol(), ': ', spread, ' points');
+}
+
+//+------------------------------------------------------------------+
+//| Custom function to check if spread is manipulated |
+//+------------------------------------------------------------------+
+bool IsSpreadManipulated()
+{
+   double minSpread = MarketInfo(Symbol(), MODE_SPREAD) * 0.9; // Assume minimum spread should be 90% of the current spread
+   double maxSpread = MarketInfo(Symbol(), MODE_SPREAD) * 1.1; // Assume maximum spread should be 110% of the current spread
+   
+   if (spread < minSpread || spread > maxSpread)
+   {
+      Print('Spread is manipulated!');
+      return true;
+   }
+   
+   Print('Spread is not manipulated.');
+   return false;
+}
+
+//+------------------------------------------------------------------+
+//| Custom function to provide lotage information |
+//+------------------------------------------------------------------+
+void ProvideLotageInformation()
+{
+   if (leverage > 100)
+   {
+      Print('Lotage information: High leverage. Use smaller lot sizes.');
+   }
+   else
+   {
+      Print('Lotage information: Normal leverage. Use appropriate lot sizes.');
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Custom function to monitor leverage and spread in real-time |
+//+------------------------------------------------------------------+
+void MonitorLeverageAndSpread()
+{
+   MonitorLeverage();
+   MonitorSpread();
+   IsSpreadManipulated();
+   ProvideLotageInformation();
+}
+
+//+------------------------------------------------------------------+
+//| Expert initialization function |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   MonitorLeverageAndSpread();
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert deinitialization function |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   Print('Check Laverage and Spread Expert Advisor stopped.');
+}
+
+//+------------------------------------------------------------------+
+//| Expert tick function |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   MonitorLeverageAndSpread();
+}
+
+//+------------------------------------------------------------------+
+//| Expert start function |
+//+------------------------------------------------------------------+
+void OnStart()
+{
+   while(!IsStopped())
+   {
+      MonitorLeverageAndSpread();
+      Sleep(1000); // Sleep for 1 second
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Expert stop function |
+//+------------------------------------------------------------------+
+void OnStop()
+{
+   Print('Check Laverage and Spread Expert Advisor stopped.');
+}
+
+//+------------------------------------------------------------------+
